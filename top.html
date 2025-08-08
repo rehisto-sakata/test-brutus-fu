@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sample Magazine — Minimal Landing</title>
+  <meta name="description" content="BRUTUS風のシンプルな雑誌トップのラフ実装。HTML/CSSのみ。" />
+  <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #111111;
+      --muted: #6b7280; /* gray-500 */
+      --line: #e5e7eb; /* gray-200 */
+      --accent: #111111;
+      --hover: #0a0a0a;
+      --container: 1180px;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans JP", "Apple Color Emoji", "Segoe UI Emoji";
+      background: var(--bg); color: var(--fg); line-height: 1.6; -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    .container { max-width: var(--container); margin: 0 auto; padding: 0 20px; }
+
+    /* Header */
+    header { border-bottom: 1px solid var(--line); background: var(--bg); position: sticky; top: 0; z-index: 40; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+    .logo { font-weight: 800; letter-spacing: .06em; font-size: clamp(20px, 4vw, 28px); }
+    .logo span { display: inline-block; padding: 6px 8px; border: 2px solid var(--fg); }
+    nav.primary { display: flex; gap: 22px; font-size: 15px; }
+    nav.primary a { opacity: .9; }
+    nav.primary a:hover { opacity: 1; text-decoration: underline; }
+    .actions { display: flex; gap: 14px; align-items: center; }
+    .btn { display:inline-flex; align-items:center; gap:.5ch; padding:10px 14px; border:1px solid var(--fg); border-radius:999px; font-size:14px; }
+    .btn:hover { background: var(--fg); color: #fff; }
+    .icon { width: 20px; height: 20px; display: inline-block; border:1px solid var(--fg); border-radius: 4px; }
+
+    /* Marquee / Ticker */
+    .ticker { border-bottom:1px solid var(--line); font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; }
+    .ticker .inner { display: inline-block; padding: 8px 0; animation: slide 25s linear infinite; }
+    .ticker .inner span { margin-right: 28px; }
+    @keyframes slide { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* Hero */
+    .hero { padding: 32px 0 8px; border-bottom: 1px solid var(--line); }
+    .hero-grid { display:grid; grid-template-columns: 1.2fr .8fr; gap: 28px; align-items: stretch; }
+    .hero .media { background: #f3f4f6; border:1px solid var(--line); aspect-ratio: 16 / 10; display: grid; place-items:center; font-weight:700; color: var(--muted); }
+    .eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    .hero h1 { font-size: clamp(28px, 4.8vw, 48px); line-height: 1.12; margin: 10px 0 8px; letter-spacing: .01em; }
+    .dek { color: #374151; font-size: clamp(14px, 2vw, 18px); margin-bottom: 12px; }
+    .meta { color: var(--muted); font-size: 13px; }
+    .hero .cta { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn.solid { background: var(--fg); color: #fff; }
+
+    /* Section heading */
+    .section { padding: 28px 0; }
+    .section h2 { font-size: 18px; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 16px; }
+
+    /* Card grid */
+    .grid { display: grid; gap: 20px; grid-template-columns: repeat(3, 1fr); }
+    .card { display:flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--line); padding-top: 10px; }
+    .card .thumb { background:#f3f4f6; border:1px solid var(--line); aspect-ratio: 4/3; display:grid; place-items:center; color: var(--muted); font-weight: 700; font-size: 13px; }
+    .tag { display: inline-block; font-size: 11px; letter-spacing:.06em; text-transform: uppercase; color: var(--muted); }
+    .card h3 { font-size: 20px; line-height: 1.25; margin: 4px 0; }
+    .card p { color:#4b5563; font-size: 14px; margin: 0; }
+    .card .meta { margin-top: auto; }
+    .card a:hover h3 { text-decoration: underline; }
+
+    /* Picks / horizontal */
+    .picks { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(220px, 1fr); gap: 16px; overflow-x: auto; padding-bottom: 8px; }
+    .picks .item { border:1px solid var(--line); padding: 12px; display:flex; flex-direction:column; gap: 8px; }
+
+    /* Footer */
+    footer { border-top:1px solid var(--line); padding: 28px 0 48px; color: var(--muted); font-size: 14px; }
+    .footgrid { display:grid; grid-template-columns: 1fr 2fr; gap: 24px; }
+    .footnav { display:grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+    .footnav a { display:block; padding: 6px 0; color: var(--fg); opacity:.8; }
+    .footnav a:hover { opacity:1; text-decoration: underline; }
+
+    /* Responsive */
+    @media (max-width: 900px){
+      .hero-grid { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: repeat(2, 1fr); }
+      .footgrid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px){
+      nav.primary { display: none; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container topbar">
+      <div class="logo" aria-label="Site logo"><span>MAGAZINE</span></div>
+      <nav class="primary" aria-label="Primary">
+        <a href="#">Features</a>
+        <a href="#">Culture</a>
+        <a href="#">Food</a>
+        <a href="#">Travel</a>
+        <a href="#">Design</a>
+      </nav>
+      <div class="actions">
+        <a class="btn" href="#">Subscribe</a>
+        <a class="icon" href="#" aria-label="Search"></a>
+      </div>
+    </div>
+    <div class="ticker">
+      <div class="inner">
+        <span>Latest: インタビュー特集「職人の手仕事」公開</span>
+        <span>イベント: 9/10 トークセッション開催</span>
+        <span>新号: 2025年9月号 〈日常の再設計〉</span>
+        <span>Latest: インタビュー特集「職人の手仕事」公開</span>
+        <span>イベント: 9/10 トークセッション開催</span>
+        <span>新号: 2025年9月号 〈日常の再設計〉</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <a class="media" href="#" aria-label="Lead story image">16:10 Placeholder</a>
+        <div>
+          <div class="eyebrow">Feature</div>
+          <h1>日常を編集するデザイン。小さな発見から始まる、新しい生活のヒント</h1>
+          <p class="dek">プロダクト、空間、食、カルチャー。編集的な目線で集めた“効く”アイデアを、軽やかな読み心地で特集しました。</p>
+          <div class="meta">2025/08/08 · 編集部</div>
+          <div class="cta">
+            <a class="btn solid" href="#">続きを読む</a>
+            <a class="btn" href="#">保存する</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section container">
+      <h2>Latest Articles</h2>
+      <div class="grid">
+        <!-- Repeatable Card -->
+        <article class="card">
+          <a href="#" class="thumb" aria-label="thumb">4:3</a>
+          <a href="#"><span class="tag">Culture</span>
+            <h3>喫茶店から始まる都市の記憶。常連が語る街の“居場所”とは</h3>
+          </a>
+          <p>昭和の空気が残る喫茶店で、常連たちが守ってきた会話と時間。街の文化はいつも小さな場所から芽吹く。</p>
+          <div class="meta">2025/08/05</div>
+        </article>
+        <article class="card">
+          <a href="#" class="thumb" aria-label="thumb">4:3</a>
+          <a href="#"><span class="tag">Food</span>
+            <h3>夏の冷やし麺百科。専門家が選ぶ“二度見”レシピ10</h3>
+          </a>
+          <p>和洋中の枠を越えて、つるりと涼しい名作を厳選。薬味の足し算で、家の昼ごはんがちょっと楽しくなる。</p>
+          <div class="meta">2025/08/03</div>
+        </article>
+        <article class="card">
+          <a href="#" class="thumb" aria-label="thumb">4:3</a>
+          <a href="#"><span class="tag">Design</span>
+            <h3>ペーパーウェイトの哲学。机上の最小建築をめぐって</h3>
+          </a>
+          <p>握ると落ち着く重量、影のかたち、無駄のない稜線。小物に宿る“設計”の愉しみを掘り下げる。</p>
+          <div class="meta">2025/08/01</div>
+        </article>
+        <article class="card">
+          <a href="#" class="thumb" aria-label="thumb">4:3</a>
+          <a href="#"><span class="tag">Travel</span>
+            <h3>一駅旅。知らない隣町で“定休日の景色”に出会う</h3>
+          </a>
+          <p>賑わいの裏側にひっそりと佇むシャッター街。休む街から見えるリズムに耳をすます。</p>
+          <div class="meta">2025/07/30</div>
+        </article>
+        <article class="card">
+          <a href="#" class="thumb" aria-label="thumb">4:3</a>
+          <a href="#"><span class="tag">People</span>
+            <h3>道具を育てる人。研ぎ師・松田さんの一日の段取り</h3>
+          </a>
+          <p>刃物と向き合う時間は、暮らしの手入れにも通じる。静かな集中に宿る所作の美しさ。</p>
+          <div class="meta">2025/07/28</div>
+        </article>
+        <article class="card">
+          <a href="#" class="thumb" aria-label="thumb">4:3</a>
+          <a href="#"><span class="tag">How-to</span>
+            <h3>5分で片づくデスク術。“置き場”を決めるだけで変わる</h3>
+          </a>
+          <p>片付けは性格ではなく、設計の問題。毎日が軽くなる、最小限のルール集。</p>
+          <div class="meta">2025/07/26</div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section container">
+      <h2>Editor's Picks</h2>
+      <div class="picks" aria-label="Horizontal selection">
+        <a class="item" href="#">
+          <strong>特集連動：朝の儀式をつくる</strong>
+          <span class="meta">連載 · 12本</span>
+        </a>
+        <a class="item" href="#">
+          <strong>散歩の方法論</strong>
+          <span class="meta">フォトエッセイ</span>
+        </a>
+        <a class="item" href="#">
+          <strong>台所アップデート</strong>
+          <span class="meta">暮らしの工夫</span>
+        </a>
+        <a class="item" href="#">
+          <strong>旅は近所から</strong>
+          <span class="meta">ミニガイド</span>
+        </a>
+        <a class="item" href="#">
+          <strong>私の道具論</strong>
+          <span class="meta">インタビュー</span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footgrid">
+      <div>
+        <div class="logo"><span>MAGAZINE</span></div>
+        <p style="margin-top:8px">シンプルなデモ実装。コンテンツと画像はダミーです。実運用ではCMS連携や画像最適化を追加してください。</p>
+      </div>
+      <div class="footnav">
+        <div>
+          <strong>Sections</strong>
+          <a href="#">Features</a>
+          <a href="#">Culture</a>
+          <a href="#">Food</a>
+          <a href="#">Travel</a>
+        </div>
+        <div>
+          <strong>Company</strong>
+          <a href="#">About</a>
+          <a href="#">Contact</a>
+          <a href="#">Advertise</a>
+          <a href="#">Privacy</a>
+        </div>
+        <div>
+          <strong>Follow</strong>
+          <a href="#">Instagram</a>
+          <a href="#">X</a>
+          <a href="#">YouTube</a>
+          <a href="#">RSS</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
